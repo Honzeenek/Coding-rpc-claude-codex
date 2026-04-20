@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Template launchd agent. Copy this file to
+      ~/Library/LaunchAgents/com.<yourname>.discordpresence.plist
+  and replace {{REPO_PATH}} with the absolute path to your clone of this repo
+  (e.g. /Users/alice/code/RPC). Then:
+      launchctl load ~/Library/LaunchAgents/com.<yourname>.discordpresence.plist
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.example.discordpresence</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>{{REPO_PATH}}/.venv/bin/python3</string>
+        <string>-u</string>
+        <string>{{REPO_PATH}}/presence.py</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>{{REPO_PATH}}/presence.log</string>
+    <key>StandardErrorPath</key>
+    <string>{{REPO_PATH}}/presence.err</string>
+    <key>WorkingDirectory</key>
+    <string>{{REPO_PATH}}</string>
+</dict>
+</plist>

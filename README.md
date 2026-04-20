@@ -1,57 +1,92 @@
 # Discord Rich Presence — Claude & Codex (macOS)
 
-Background script that shows **"Using Claude"** or **"Coding with Codex"** on your Discord profile based on which app is running locally.
+Background script that shows **"Using Claude Desktop"** or **"Coding with Codex"** on your Discord profile based on which app is running locally.
+
+![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)
+
+## How it works
+
+`presence.py` polls running processes every 15 seconds. When it sees Claude Desktop or Codex, it connects to Discord's local IPC socket (via [pypresence](https://github.com/qwertyquerty/pypresence)) and sets a Rich Presence activity. When both apps quit, it clears the activity.
 
 ## Setup
 
-1. Clone and enter the repo:
+1. Clone the repo:
    ```bash
-   git clone <your-repo-url> RPC && cd RPC
+   git clone https://github.com/<you>/RPC.git && cd RPC
    ```
 
-2. Create a Discord Application at https://discord.com/developers/applications
-   - Upload two Rich Presence assets named exactly `claude_logo` and `codex_logo`
-   - Copy the **Application ID** and paste it into `presence.py` as `CLIENT_ID`
-
-3. Create a venv and install deps:
+2. Create a venv and install deps:
    ```bash
    python3 -m venv .venv
    .venv/bin/pip install -r requirements.txt
    ```
 
-4. Test it:
+3. Run it:
    ```bash
    .venv/bin/python3 presence.py
    ```
-   You should see `Connected to Discord.` followed by `-> Claude` / `-> Codex` / `-> Idle`.
+   You should see `-> Claude` / `-> Codex` / `-> Idle`. That's it — the script ships with default Discord application IDs so it works out of the box.
 
-5. Install as a launchd agent so it runs at login:
+## Using your own Discord application (optional)
+
+If you want your own app name / custom assets instead of the defaults:
+
+1. Create a Discord Application at https://discord.com/developers/applications.
+2. Upload two Rich Presence assets named exactly `claude_logo` and `codex_logo`.
+3. Copy `config.example.json` to `config.json` and paste your Application IDs, **or** export env vars:
    ```bash
-   # Edit com.hanz.discordpresence.plist — replace /Users/janpalenik with your path
-   cp com.hanz.discordpresence.plist ~/Library/LaunchAgents/
-   launchctl load ~/Library/LaunchAgents/com.hanz.discordpresence.plist
+   export CLIENT_ID_CLAUDE=...
+   export CLIENT_ID_CODEX=...
+   ```
+
+Env vars take precedence over `config.json`, which takes precedence over the built-in defaults.
+
+## Run at login (launchd)
+
+1. Copy the template plist and fill in your repo path:
+   ```bash
+   sed "s|{{REPO_PATH}}|$PWD|g" com.example.discordpresence.plist.example \
+     > ~/Library/LaunchAgents/com.$USER.discordpresence.plist
+   ```
+
+2. Load it:
+   ```bash
+   launchctl load ~/Library/LaunchAgents/com.$USER.discordpresence.plist
    launchctl list | grep discordpresence
    ```
 
-## Requirements
-
-- Discord **desktop app** must be running (browser Discord does not expose the IPC socket)
-- Discord Settings → Activity Privacy → **Display current activity** must be ON
-- Custom asset icons can take up to ~10 min to appear after upload
-
-## Managing the agent
+### Managing the agent
 
 ```bash
 # stop
-launchctl unload ~/Library/LaunchAgents/com.hanz.discordpresence.plist
+launchctl unload ~/Library/LaunchAgents/com.$USER.discordpresence.plist
 # start
-launchctl load ~/Library/LaunchAgents/com.hanz.discordpresence.plist
+launchctl load ~/Library/LaunchAgents/com.$USER.discordpresence.plist
 # logs
 tail -f presence.log presence.err
 ```
 
+## Requirements
+
+- macOS (process detection uses macOS-specific app names — see Contributing below for Linux/Windows)
+- Python 3.9+
+- Discord **desktop app** running (browser Discord does not expose the IPC socket)
+- Discord → Settings → Activity Privacy → **Display current activity** = ON
+- Custom asset icons can take up to ~10 min to appear after upload
+
 ## Troubleshooting
 
 - `Discord not running or connection failed` → open the Discord desktop app.
-- Presence shows nothing → check Activity Privacy setting, and confirm asset names match (`claude_logo`, `codex_logo`).
-- Wrong process detected → run `ps aux | grep -iE "claude|codex"` and adjust `CLAUDE_PROCESSES` / `CODEX_PROCESSES` in `presence.py`.
+- Presence shows nothing → check Activity Privacy, and confirm asset names match (`claude_logo`, `codex_logo`) if using your own Discord app.
+- Wrong process detected → run `ps aux | grep -iE "claude|codex"` and adjust `CLAUDE_RENDERERS` / `CODEX_RENDERERS` / `CODEX_CLI_NAMES` in `presence.py`.
+
+## Contributing
+
+PRs welcome — especially:
+- Linux / Windows process detection
+- Additional AI coding tools (Cursor, Zed, Aider, etc.)
+- A proper CLI for configuring Client IDs and the plist
+
+## License
+
+MIT — see [LICENSE](LICENSE).

@@ -1,0 +1,4 @@
+{
+  "client_id_claude": "YOUR_CLAUDE_APP_ID",
+  "client_id_codex": "YOUR_CODEX_APP_ID"
+}

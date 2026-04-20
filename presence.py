@@ -2,10 +2,31 @@
 from pypresence import Presence
 import psutil
 import time
-import sys
+import os
+import json
+from pathlib import Path
 
-CLIENT_ID_CLAUDE = "1495774494474637504"
-CLIENT_ID_CODEX = "1495782123678990396"
+# Client IDs resolve in this order: env var > config.json > built-in default.
+# The defaults point at public Discord apps with `claude_logo` / `codex_logo`
+# assets already uploaded, so the script works out of the box. Override with
+# your own Discord application IDs if you want custom app names or assets.
+DEFAULT_CLIENT_ID_CLAUDE = "1495774494474637504"
+DEFAULT_CLIENT_ID_CODEX = "1495782123678990396"
+
+
+def _load_config():
+    path = Path(__file__).with_name("config.json")
+    if path.exists():
+        try:
+            return json.loads(path.read_text())
+        except json.JSONDecodeError:
+            print(f"Warning: {path} is not valid JSON, ignoring.", flush=True)
+    return {}
+
+
+_config = _load_config()
+CLIENT_ID_CLAUDE = os.environ.get("CLIENT_ID_CLAUDE") or _config.get("client_id_claude") or DEFAULT_CLIENT_ID_CLAUDE
+CLIENT_ID_CODEX = os.environ.get("CLIENT_ID_CODEX") or _config.get("client_id_codex") or DEFAULT_CLIENT_ID_CODEX
 
 CLAUDE_RENDERERS = {"Claude Helper (Renderer)"}
 CODEX_RENDERERS = {"Codex Helper (Renderer)"}

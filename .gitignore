@@ -26,3 +26,8 @@ presence.err
 # Local secrets / overrides
 .env
 .env.local
+config.json
+
+# User-specific launchd plist (committed copy lives in *.example)
+com.*.discordpresence.plist
+!com.example.discordpresence.plist.example
