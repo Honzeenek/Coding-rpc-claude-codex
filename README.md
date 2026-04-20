@@ -12,7 +12,7 @@ Background script that shows **"Using Claude Desktop"** or **"Coding with Codex"
 
 1. Clone the repo:
    ```bash
-   git clone https://github.com/<you>/RPC.git && cd RPC
+   git clone https://github.com/Honzeenek/Coding-rpc-claude-codex.git && cd Coding-rpc-claude-codex
    ```
 
 2. Create a venv and install deps:
